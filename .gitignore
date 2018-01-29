@@ -1,2 +1,6 @@
 *.pyc
 __pycache__/
+.ropeproject/
+policy_backup/
+*.md
+current_policy.model

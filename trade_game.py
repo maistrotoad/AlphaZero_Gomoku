@@ -15,16 +15,14 @@ class Board(object):
     def __init__(self, **kwargs):
         self.width = int(kwargs.get('width', 8))
         self.height = int(kwargs.get('height', 8))
-        self.states = {}  # board states, key:move as location on the board, value:player as pieces type
+        self.states = {}  # board states, key:move as location on the board, value:player as pieces
         self.n_in_row = int(kwargs.get('n_in_row', 5))  # need how many pieces in a row to win
         self.players = [1, 2]  # player1 and player2
 
     def init_board(self, start_player=0):
-        if self.width < self.n_in_row or self.height < self.n_in_row:
-            raise Exception('board width and height can not less than %d' % self.n_in_row)
         self.current_player = self.players[start_player]  # start player
         self.availables = list(range(self.width * self.height))  # available moves
-        self.states = {}  # board states, key:move as location on the board, value:player as pieces type
+        self.states = {}  # board states, key:move as location on the board, value:player as pieces
         self.last_move = -1
 
     def move_to_location(self, move):
@@ -67,10 +65,9 @@ class Board(object):
         return square_state[:, ::-1, :]
 
     def do_move(self, move):
-        self.states[move] = self.current_player
-        self.availables.remove(move)
-        choose_zero = self.current_player == self.players[1]
-        self.current_player = self.players[0] if choose_zero else self.players[1]
+        self.states[move] = [i[t] * x for i in [[1, 2], [3, 4]] for t, x in enumerate(i)]
+        choose_player_0 = self.current_player == self.players[1]
+        self.current_player = self.players[0] if choose_player_0 else self.players[1]
         self.last_move = move
 
     def has_a_winner(self):
@@ -80,36 +77,13 @@ class Board(object):
         n = self.n_in_row
 
         moved = list(set(range(width * height)) - set(self.availables))
-        if(len(moved) < self.n_in_row + 2):
-            return False, -1
 
         for m in moved:
             h = m // width
             w = m % width
             player = states[m]
 
-            if (
-                w in range(width - n + 1) and
-                    len(set(states.get(i, -1) for i in range(m, m + n))) == 1
-            ):
-                return True, player
-            if (
-                h in range(height - n + 1) and
-                    len(set(states.get(i, -1) for i in range(m, m + n * width, width))) == 1
-            ):
-                return True, player
-            if (
-                w in range(width - n + 1) and h in range(height - n + 1) and
-                    len(set(states.get(i, -1)
-                            for i in range(m, m + n * (width + 1), width + 1))) == 1
-            ):
-                return True, player
-            if (
-                w in range(n - 1, width) and h in range(height - n + 1) and
-                    len(set(states.get(i, -1)
-                            for i in range(m, m + n * (width - 1), width - 1))) == 1
-            ):
-                return True, player
+            if states[m] >=
         return False, -1
 
     def game_end(self):
@@ -139,7 +113,6 @@ class Game(object):
         """
         width = board.width
         height = board.height
-
         print("Player", player1, "with X".rjust(3))
         print("Player", player2, "with O".rjust(3))
         print()
@@ -188,7 +161,7 @@ class Game(object):
                         print("Game end. Tie")
                 return winner
 
-    def start_self_play(self, player, is_shown=False, temp=1e-3):
+    def start_self_play(self, player, is_shown=0, temp=1e-3):
         """ start a self-play game using a MCTS player, reuse the search tree
         store the self-play data: (state, mcts_probs, z)
         """
@@ -219,4 +192,4 @@ class Game(object):
                         print("Game end. Winner is player:", winner)
                     else:
                         print("Game end. Tie")
-                return winner, list(zip(states, mcts_probs, winners_z))
+                return winner, zip(states, mcts_probs, winners_z)
