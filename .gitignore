@@ -2,5 +2,5 @@
 __pycache__/
 .ropeproject/
 policy_backup/
-*.md
+*_design.md
 current_policy.model

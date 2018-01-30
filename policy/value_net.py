@@ -7,9 +7,10 @@ from __future__ import print_function
 import theano
 import theano.tensor as T
 import lasagne
+from core.settings import EPS
 
 
-class PolicyValueNet():
+class PolicyValueNet:
     """policy-value network """
 
     def __init__(self, board_width, board_height, net_params=None):
@@ -80,7 +81,7 @@ class PolicyValueNet():
         self.loss = lasagne.objectives.aggregate(
             value_loss + policy_loss, mode='mean') + self.l2_const * l2_penalty
         # policy entropy，for monitoring only
-        self.entropy = -T.mean(T.sum(self.action_probs * T.log(self.action_probs + 1e-10), axis=1))
+        self.entropy = -T.mean(T.sum(self.action_probs * T.log(self.action_probs + EPS), axis=1))
         # get the train op
         updates = lasagne.updates.adam(self.loss, params, learning_rate=self.learning_rate)
         self.train_step = theano.function(
